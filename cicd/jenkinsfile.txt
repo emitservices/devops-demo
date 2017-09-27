@@ -1,0 +1,86 @@
+node {
+   def mvnHome
+   def kube_deployment
+   def kube_container
+   def kube_image
+  
+   stage('Checkout and Preparation') {
+      // Checkout 
+      git 'https://github.com/talal-shobaita/hello-world'
+      // Make sure Maven M3.5 is defined in the global configuration.           
+      mvnHome = tool 'M3'
+      kube_deployment = "demo_stage"
+      kube_container = "hello-world"
+      kube_image = "hello-world"
+    }
+
+   stage('Small patch') {
+      // Checkout small patch
+      git 'https://github.com/emitservices/hello-world'         
+   }
+   stage('Build') {
+    // Run Maven build
+    sh "'${mvnHome}/bin/mvn' clean package"
+ }
+  
+   stage('Test') {
+try {
+    notifyBuild('STARTED')
+ 
+     // Run maven Test
+         sh "'${mvnHome}/bin/mvn' test"
+ 
+  } catch (e) {
+    // If there was an exception thrown, the build failed
+    currentBuild.result = "FAILED"
+    throw e
+  } finally {
+    // Success or failure, always send notifications
+    notifyBuild(currentBuild.result)
+  }
+  }
+
+ 
+
+   stage('Build container image') {
+      // Run the maven build docker image
+         sh "'${mvnHome}/bin/mvn' dockerfile:build"
+   }
+
+   stage('Push the built image') {
+      // push container image
+         sh "'${mvnHome}/bin/mvn' dockerfile:push" 
+   }
+   
+   stage('Notify Kubernetes') {
+      // Notify Kubernetes
+      sh "'kubectl' set image deployment/'${kube_deployment}' '${kube_container}'='${kube_image} "
+   }
+}
+      def notifyBuild(String buildStatus = 'STARTED') {
+  // build status of null means successful
+  buildStatus =  buildStatus ?: 'SUCCESSFUL'
+ 
+  // Default values
+  def colorName = 'RED'
+  def colorCode = '#FF0000'
+  def subject = "${buildStatus}: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'"
+  def summary = "${subject} (${env.BUILD_URL})"
+  def details = """<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+    <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>"""
+ 
+  // Override default values based on build status
+  if (buildStatus == 'STARTED') {
+    color = 'YELLOW'
+    colorCode = '#FFFF00'
+  } else if (buildStatus == 'SUCCESSFUL') {
+    color = 'GREEN'
+    colorCode = '#00FF00'
+  } else {
+    color = 'RED'
+    colorCode = '#FF0000'
+  }
+ 
+  // Send notifications
+  slackSend (color: colorCode, message: summary)
+}
