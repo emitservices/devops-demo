@@ -1,6 +1,7 @@
 ## Infrastructure provisioning 
+# Continuous Integration / Continuous Delivery system
 Ansible is an automation tool that helps with software provisioning, configuration management, and application deployment. It is trending faster than any other configuration management engine and can soon overtake its two main competitors: Chef and Puppet. It uses agentless architecture and integrates smoothly with Docker.
-We'll use it in this demo to provision the underline infrastructure. Such as Jenkins, docker and maven.
+We'll use it in this demo to provision the underline infrastructure (CICD platform). typically  Jenkins (CICD), docker(container engin) and maven (build system).
 To install one package, specify the package name with --limit
 
 ansible-playbook site.yml --limit jenkins
@@ -8,3 +9,7 @@ ansible-playbook site.yml --limit jenkins
 To install all packages, run the below command
 
 ansible-playbook site.yml
+
+# Workloads infrastructure
+Google Container Engine (GCE) will be used for workload. GCE provides managed kubernetes cluster on optimized compute nodes.
+Kubernetes is an open source orchestrator for deploying containerizedapplications. Kubernetes was originally developed by Google, inspiredby a decade of experience deploying scalable, eliable systems incontainers via application-oriented APIs.

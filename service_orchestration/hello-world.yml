@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-world
+  namespace: default
+spec:
+  containers:
+  - image: docker.io/fawaz/us.fetchr.sample:latest
+    imagePullPolicy: Always
+    name: hello-world
+    ports:
+    - containerPort: 8080
+      protocol: TCP
