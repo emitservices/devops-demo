@@ -1,0 +1,11 @@
+---
+- name: Install Java 1.8
+  apt: 
+     name: openjdk-8-jdk
+     state: present
+
+
+- name: Update repositories cache and install maven package
+  apt:
+    name: maven
+    update_cache: yes

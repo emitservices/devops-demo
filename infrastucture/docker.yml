@@ -1,0 +1,6 @@
+---
+# This playbook deploys a simple standalone jenkins with JDK 8
+
+- hosts: docker
+  roles:
+    - docker

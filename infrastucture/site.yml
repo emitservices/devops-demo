@@ -1,0 +1,6 @@
+---
+# import plays
+- import_plays: jenkins.yml
+- import_plays: maven.yml
+- import_plays: docker.yml
+
